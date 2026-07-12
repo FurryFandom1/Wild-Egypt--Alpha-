@@ -17,7 +17,7 @@ public class LoadSceneOnCollision : MonoBehaviour
     }
     private void Start()
     {
-            Debug.Log("Ты лох");
+        Debug.Log("Ты лох");
     }
 
 }
