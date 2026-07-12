@@ -15,7 +15,11 @@ public class LoadSceneOnCollision : MonoBehaviour
     {
         SceneManager.LoadScene(2);
     }
-}
+    private void Start()
+    {
+            Debug.Log("Ты лох");
+    }
 
+}
 
 
