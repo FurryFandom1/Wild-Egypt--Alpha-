@@ -9,9 +9,13 @@ public class LoadSceneOnCollision : MonoBehaviour
         {
             LoadScene();
         }
+        
     }
     public void LoadScene()
     {
         SceneManager.LoadScene(2);
     }
 }
+
+
+
