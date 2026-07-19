@@ -51,7 +51,7 @@ public class Gun : MonoBehaviour
             if (CanShoot())
             {
                 
-                // Луч летит из камеры
+
                 Vector3 origin = playerCamera.transform.position;
                 Vector3 dir = playerCamera.transform.forward;
 
