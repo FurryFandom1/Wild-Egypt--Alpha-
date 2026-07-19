@@ -7,6 +7,7 @@ public class Gun : MonoBehaviour
     [Header("References")]
     [SerializeField] private GunData gunData;
     [SerializeField] private Transform  muzzle;
+    [SerializeField] private Camera playerCamera; 
     [SerializeField] KeyCode keyReload = KeyCode.R;
     float timeSinceLastShot;
     [SerializeField] public ParticleSystem muzzleFlash;
@@ -44,65 +45,61 @@ public class Gun : MonoBehaviour
     }
     private bool CanShoot() => !gunData.reloading && timeSinceLastShot > 1f / (gunData.fireRate / 60f);
     public void Shoot()
-{
-    if (gunData.currentAmmo > 0) 
     {
-        if (CanShoot())
+        if (gunData.currentAmmo > 0)
         {
-            // Выполняем луч ДО создания эффектов
-            bool hasHit = Physics.Raycast(
-                muzzle.position, 
-                transform.forward, 
-                out RaycastHit hitInfo, 
-                gunData.maxDistance
-            );
-
-            // Всегда уменьшаем патроны и проигрываем эффекты ствола
-            gunData.currentAmmo--;
-            timeSinceLastShot = 0;
-            
-            if (muzzleFlash != null) 
-                muzzleFlash.Play();
-            
-            if (_audioSource != null && shotFX != null)
-                _audioSource.PlayOneShot(shotFX);
-            
-            StartCoroutine(startRecoil());
-
-            // Только если было попадание - обрабатываем его
-            if (hasHit)
+            if (CanShoot())
             {
-                Debug.DrawRay(muzzle.position, transform.forward * 100, Color.blue, 1f);
+                
 
-                // Проверяем тег только если объект существует
-                if (hitInfo.collider != null && hitInfo.transform.CompareTag("Enemy"))
+                Vector3 origin = playerCamera.transform.position;
+                Vector3 dir = playerCamera.transform.forward;
+
+                bool hasHit = Physics.Raycast(
+                    origin,
+                    dir,
+                    out RaycastHit hitInfo,
+                    gunData.maxDistance
+                );
+
+                gunData.currentAmmo--;
+                timeSinceLastShot = 0;
+
+                if (muzzleFlash != null)
+                    muzzleFlash.Play();
+
+                if (_audioSource != null && shotFX != null)
+                    _audioSource.PlayOneShot(shotFX);
+
+                StartCoroutine(startRecoil());
+
+                if (hasHit)
                 {
-                    Enemy enemy = hitInfo.transform.GetComponent<Enemy>();
-                    if (enemy != null)
+                    Debug.DrawRay(origin, dir * 100, Color.blue, 1f);
+
+                    if (hitInfo.collider != null && hitInfo.transform.CompareTag("Enemy"))
                     {
-                        enemy.InflictDamage(gunData.damage);
+                        Enemy enemy = hitInfo.transform.GetComponent<Enemy>();
+                        if (enemy != null)
+                        {
+                            enemy.InflictDamage(gunData.damage);
+                        }
+                    }
+
+                    if (hitEffect != null)
+                    {
+                        GameObject impact = Instantiate(
+                            hitEffect,
+                            hitInfo.point,
+                            Quaternion.LookRotation(hitInfo.normal)
+                        );
+                        Destroy(impact, 1f);
                     }
                 }
-
-                // Создаем эффект попадания только если префаб назначен
-                if (hitEffect != null)
-                {
-                    GameObject impact = Instantiate(
-                        hitEffect, 
-                        hitInfo.point, 
-                        Quaternion.LookRotation(hitInfo.normal)
-                    );
-                    Destroy(impact, 1f);
-                }
-                else
-                {
-                    Debug.LogWarning("HitEffect is not assigned in Gun script");
-                }
             }
-        }   
+        }
     }
-}
-    
+
     private void Update() {
         timeSinceLastShot += Time.deltaTime;
         if (Input.GetButtonDown("Fire1"))
