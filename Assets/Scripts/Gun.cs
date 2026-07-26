@@ -79,10 +79,10 @@ public class Gun : MonoBehaviour
 
                     if (hitInfo.collider != null && hitInfo.transform.CompareTag("Enemy"))
                     {
-                        Enemy enemy = hitInfo.transform.GetComponent<Enemy>();
+                        EnemyAI enemy = hitInfo.transform.GetComponent<EnemyAI>();
                         if (enemy != null)
                         {
-                            enemy.InflictDamage(gunData.damage);
+                            enemy.TakeDamage(gunData.damage); 
                         }
                     }
 

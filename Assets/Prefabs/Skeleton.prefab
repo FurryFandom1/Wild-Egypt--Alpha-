@@ -94,10 +94,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   agent: {fileID: 0}
-  LookRadius: 50
-  m_health: 100
-  _audioFx: {fileID: 0}
-  _diefx: {fileID: 0}
+  audioFx: {fileID: 0}
+  dieClip: {fileID: 0}
+  health: 100
+  lookRadius: 50
+  attackDistance: 1
+  damage: 10
+  attackCooldown: 1
+  updateRate: 0.5
+  obstaclesMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!195 &7286869994659648657
 NavMeshAgent:
   m_ObjectHideFlags: 0

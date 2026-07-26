@@ -1,109 +1,139 @@
-using System.Collections;
-using Photon.Pun.Demo.PunBasics;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Enemy : MonoBehaviour
+public class EnemyAI : MonoBehaviour
 {
-    private Transform target;
+    [Header("References")]
     public NavMeshAgent agent;
-    public float LookRadius = 50f;
-    [SerializeField] float m_health = 100;
-    [SerializeField] public AudioSource _audioFx;
-    [SerializeField] public AudioClip _diefx;
-    
-    private float targetUpdateRate = 0.5f; // Частота обновления цели
-    private float lastTargetUpdate;
-    private LayerMask raycastMask;
+    public AudioSource audioFx;
+    public AudioClip dieClip;
 
-    private void Start()
+    [Header("Combat")]
+    public float health = 100f;
+    public float lookRadius = 50f;
+    public float attackDistance = 2f;
+    public float damage = 10f;
+    public float attackCooldown = 1f;
+
+    [Header("Senses")]
+    public float updateRate = 0.5f;
+    public LayerMask obstaclesMask = -1;
+
+    private Transform target;
+    private float lastUpdateTime;
+    private float nextAttackTime;
+    private bool isDead;
+
+    void Start()
     {
-        agent = GetComponent<NavMeshAgent>();
-        raycastMask = LayerMask.GetMask("Player", "Obstacles"); // Важно добавить слой препятствий!
-        lastTargetUpdate = -targetUpdateRate; // Сразу запустить поиск
+        if (agent == null) agent = GetComponent<NavMeshAgent>();
+        obstaclesMask = LayerMask.GetMask("Player", "Obstacles");
+        lastUpdateTime = -updateRate;
     }
 
-    private void Update()
+    void Update()
     {
-        if (Time.time - lastTargetUpdate >= targetUpdateRate)
+        if (isDead) return;
+
+        if (Time.time - lastUpdateTime >= updateRate)
         {
-            lastTargetUpdate = Time.time;
-            FindNearestVisiblePlayer();
+            lastUpdateTime = Time.time;
+            UpdateTarget();
         }
-        
-        // Двигаемся только если есть цель и она валидна
+
         if (target != null && agent.enabled)
         {
-            agent.SetDestination(target.position);
-        }
-    }
+            float dist = Vector3.Distance(transform.position, target.position);
 
-    private void FindNearestVisiblePlayer()
-    {
-        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
-        Transform nearestTarget = null;
-        float closestDistance = Mathf.Infinity;
-
-        foreach (GameObject player in players)
-        {
-            float distance = Vector3.Distance(transform.position, player.transform.position);
-            
-            // Проверка радиуса и наличия прямой видимости
-            if (distance <= LookRadius && 
-                distance < closestDistance &&
-                HasLineOfSight(player.transform))
+            if (dist <= attackDistance)
             {
-                closestDistance = distance;
-                nearestTarget = player.transform;
+                agent.ResetPath();
+                TryAttack();
+            }
+            else
+            {
+                agent.SetDestination(target.position);
             }
         }
-
-        target = nearestTarget;
-        
-        // Останавливаем агента если цель пропала
-        if (target == null && agent.enabled)
+        else
         {
-            agent.ResetPath();
+            if (agent.enabled && agent.hasPath) agent.ResetPath();
         }
     }
 
-    private bool HasLineOfSight(Transform player)
+    void UpdateTarget()
     {
-        Vector3 direction = player.position - transform.position;
-        RaycastHit hit;
-        
-        if (Physics.Raycast(
-            transform.position + Vector3.up * 0.5f, // Старт с высоты груди
-            direction, 
-            out hit,
-            LookRadius,
-            raycastMask))
+        target = null;
+        float bestDist = lookRadius;
+
+        foreach (var player in GameObject.FindGameObjectsWithTag("Player"))
         {
-            return hit.transform.CompareTag("Player");
+            float dist = Vector3.Distance(transform.position, player.transform.position);
+            if (dist > lookRadius) continue;
+            if (dist >= bestDist) continue;
+            if (!HasLineOfSight(player.transform)) continue;
+
+            bestDist = dist;
+            target = player.transform;
         }
-        return false;
     }
 
-    public void InflictDamage(float value)
+    bool HasLineOfSight(Transform player)
     {
-        m_health -= value;
-        Debug.Log($"Hit in {transform.name} HP: {m_health}");
-        if (m_health <= 0)
+        Vector3 origin = transform.position + Vector3.up * 0.5f;
+        Vector3 dir = player.position - origin;
+        float dist = dir.magnitude;
+        dir.Normalize();
+
+        return !Physics.Raycast(origin, dir, out RaycastHit hit, dist, obstaclesMask);
+    }
+
+    void TryAttack()
+    {
+        if (Time.time < nextAttackTime) return;
+        nextAttackTime = Time.time + attackCooldown;
+
+        if (target == null) return;
+
+        var health = target.GetComponent<HealthSystem>();
+        if (health != null)
         {
-            _audioFx.PlayOneShot(_diefx);
-            Destroy(gameObject);
+            health.DamageTaken(damage);
         }
+    }
+
+    public void TakeDamage(float amount)
+    {
+        if (isDead) return;
+
+        health -= amount;
+        if (health <= 0f)
+        {
+            Die();
+        }
+    }
+
+    void Die()
+    {
+        isDead = true;
+        if (audioFx != null && dieClip != null)
+            audioFx.PlayOneShot(dieClip);
+
+        if (agent != null) agent.enabled = false;
+
+        Destroy(gameObject, 2f);
     }
 
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, LookRadius);
-        
-        // Визуализация луча видимости
+        Gizmos.DrawWireSphere(transform.position, lookRadius);
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, attackDistance);
+
         if (target != null)
         {
-            Gizmos.color = Color.yellow;
+            Gizmos.color = Color.cyan;
             Gizmos.DrawLine(transform.position + Vector3.up * 0.5f, target.position);
         }
     }
