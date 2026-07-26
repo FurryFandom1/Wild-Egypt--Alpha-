@@ -7,7 +7,7 @@ public class Enemy : MonoBehaviour
 {
     private Transform target;
     public NavMeshAgent agent;
-    public float LookRadius = 10f;
+    public float LookRadius = 50f;
     [SerializeField] float m_health = 100;
     [SerializeField] public AudioSource _audioFx;
     [SerializeField] public AudioClip _diefx;
