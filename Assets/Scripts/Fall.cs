@@ -13,11 +13,7 @@ public class LoadSceneOnCollision : MonoBehaviour
     }
     public void LoadScene()
     {
-        SceneManager.LoadScene(2);
-    }
-    private void Start()
-    {
-        Debug.Log("Ты лох");
+        SceneManager.LoadScene(3);
     }
 
 }
