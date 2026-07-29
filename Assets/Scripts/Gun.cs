@@ -81,6 +81,11 @@ public class Gun : MonoBehaviour
                 if (hasHit)
                 {
                     EnemyAI enemy = hitInfo.transform.GetComponent<EnemyAI>();
+                    if (enemy == null)
+                    {
+                        enemy = hitInfo.transform.GetComponentInParent<EnemyAI>();
+                    }
+
                     if (enemy != null)
                     {
                         enemy.TakeDamage(gunData.damage);
