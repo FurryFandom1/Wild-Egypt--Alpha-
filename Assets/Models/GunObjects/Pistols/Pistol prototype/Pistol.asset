@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6217dc539d9d964994852daef4df162, type: 3}
   m_Name: Pistol
   m_EditorClassIdentifier: 
-  name: Pistol
+  Name: Pistol
+  gunIcon: {fileID: 21300000, guid: 9fca4fb4872371c46b93914f6699c830, type: 3}
   damage: 31
   maxDistance: 300
   currentAmmo: 4
@@ -20,3 +21,7 @@ MonoBehaviour:
   fireRate: 300
   reloadTime: 4
   reloading: 1
+  recoilVertical: 2
+  recoilHorizontal: 1
+  recoilSpeed: 10
+  maxRecoil: 10

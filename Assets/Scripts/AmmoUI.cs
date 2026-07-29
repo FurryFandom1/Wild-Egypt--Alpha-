@@ -35,7 +35,6 @@ public class AmmoUI : MonoBehaviour
     {
         _currnetAmmo = _gunData.currentAmmo;
         _magSize = _gunData.magSize;
-
         _ammoText.text = $"{_currnetAmmo} / {_magSize}";
     }
 

@@ -5,6 +5,7 @@ public class GunData : ScriptableObject
 {
     [Header("Info")]
     public string Name;
+    public Sprite gunIcon;
 
     [Header("Shooting")]
     public float damage;

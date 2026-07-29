@@ -851,6 +851,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3557612979891246833, guid: eeda1ad24032f64468ad7e80bd371a45,
         type: 3}
+      propertyPath: m_Name
+      value: WeaponUIText
+      objectReference: {fileID: 0}
+    - target: {fileID: 3557612979891246833, guid: eeda1ad24032f64468ad7e80bd371a45,
+        type: 3}
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
