@@ -17,7 +17,6 @@ public class Gun : MonoBehaviour
     [SerializeField] public GameObject hitEffect;
     [SerializeField] public float maxDistance = 1000f;
 
-    // Recoil
     private Vector3 currentRecoil = Vector3.zero;
     private Vector3 targetRecoil = Vector3.zero;
 
@@ -57,11 +56,14 @@ public class Gun : MonoBehaviour
                 Vector3 origin = playerCamera.transform.position;
                 Vector3 dir = playerCamera.transform.forward;
 
+                int layerMask = ~LayerMask.GetMask("Player");
+
                 bool hasHit = Physics.Raycast(
                     origin,
                     dir,
                     out RaycastHit hitInfo,
-                    gunData.maxDistance
+                    gunData.maxDistance,
+                    layerMask
                 );
 
                 gunData.currentAmmo--;
@@ -74,21 +76,14 @@ public class Gun : MonoBehaviour
                     _audioSource.PlayOneShot(shotFX);
 
                 StartCoroutine(startRecoil());
-
-                // ÎÒÄÀ×À
                 ApplyRecoil();
 
                 if (hasHit)
                 {
-                    Debug.DrawRay(origin, dir * 100, Color.blue, 1f);
-
-                    if (hitInfo.collider != null && hitInfo.transform.CompareTag("Enemy"))
+                    EnemyAI enemy = hitInfo.transform.GetComponent<EnemyAI>();
+                    if (enemy != null)
                     {
-                        EnemyAI enemy = hitInfo.transform.GetComponent<EnemyAI>();
-                        if (enemy != null)
-                        {
-                            enemy.TakeDamage(gunData.damage);
-                        }
+                        enemy.TakeDamage(gunData.damage);
                     }
 
                     if (hitEffect != null)
