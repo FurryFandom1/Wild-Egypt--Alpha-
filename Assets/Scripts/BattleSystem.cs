@@ -15,7 +15,7 @@ public class EnemySpawn : MonoBehaviour
     bool waveIsDone = true;
     void Update()
     {
-//        waveCountText.text = "Wave " + waveCount.ToString();
+        waveCountText.text = "Wave " + waveCount.ToString();
         if (waveIsDone == true)
         {
             StartCoroutine(waveSpawner());
