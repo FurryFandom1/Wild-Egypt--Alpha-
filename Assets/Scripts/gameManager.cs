@@ -19,6 +19,7 @@ public class gameManager : MonoBehaviour
         if (player.GetComponent<PhotonView>().IsMine)
         {
             player.GetComponent<FirstPersonController>().enabled = true;
+
         }
     }
 }
