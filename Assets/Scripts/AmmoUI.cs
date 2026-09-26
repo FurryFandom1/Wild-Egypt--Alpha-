@@ -6,6 +6,7 @@ public class AmmoUI : MonoBehaviour
 {
     [SerializeField] private GunData _gunData;
     [SerializeField] private TMP_Text _ammoText;
+    [SerializeField] private SourceImage Icon;
     private int _currnetAmmo;
     private int _magSize;
     private int lastAmmo = -1;
@@ -18,6 +19,7 @@ public class AmmoUI : MonoBehaviour
             _ammoText = GetComponent<TMP_Text>();
             
             UpdateAmmoText();
+            UpdateIcon();
         }
     }
     
@@ -30,6 +32,9 @@ public class AmmoUI : MonoBehaviour
         {
             UpdateAmmoText();
         }
+        
+        
+  
     }
     private void UpdateAmmoText()
     {
@@ -37,5 +42,8 @@ public class AmmoUI : MonoBehaviour
         _magSize = _gunData.magSize;
         _ammoText.text = $"{_currnetAmmo} / {_magSize}";
     }
+    
+    
+
 
 }

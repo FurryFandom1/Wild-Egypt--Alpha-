@@ -22,13 +22,12 @@ public class PlayerNetworkSetup : MonoBehaviourPunCallbacks
             Debug.LogError("Player camera is missing!");
         }
         
-        // Включаем FPS контроллер
         if (fpsController != null) 
         {
             fpsController.enabled = true;
         }
         
-        // Настройки курсора
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }

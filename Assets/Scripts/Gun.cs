@@ -16,6 +16,7 @@ public class Gun : MonoBehaviour
     [SerializeField] public AudioSource _audioSource;
     [SerializeField] public GameObject hitEffect;
     [SerializeField] public float maxDistance = 1000f;
+    [SerializeField] private Transform recoilPivot;
 
     private Vector3 currentRecoil = Vector3.zero;
     private Vector3 targetRecoil = Vector3.zero;
@@ -145,7 +146,7 @@ public class Gun : MonoBehaviour
 
         if (playerCamera != null)
         {
-            playerCamera.transform.localRotation = Quaternion.Euler(currentRecoil);
+            recoilPivot.transform.localRotation = Quaternion.Euler(currentRecoil);
         }
     }
 }
