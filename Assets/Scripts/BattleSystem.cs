@@ -1,48 +1,122 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
 public class EnemySpawn : MonoBehaviour
 {
+    [Header("Spawn")]
     [SerializeField] private Transform[] spawnPoints;
-    [SerializeField] public TextMeshProUGUI waveCountText;
-    [SerializeField] public int waveCount = 0;
-    [SerializeField] public float spawnRate = 2.0f;
-    [SerializeField] public float timeBetweenWaves = 20.0f;
-    [SerializeField] public GameObject enemy;
-    [SerializeField] public int enemyCount;
+    [SerializeField] private GameObject[] enemies;
 
-    bool waveIsDone = true;
-    void Update()
+    [Header("Wave Settings")]
+    [SerializeField] private int waveCount = 0;
+    [SerializeField] private int enemyCount = 5;
+    [SerializeField] private int enemiesAddedPerWave = 5;
+
+    [SerializeField] private float spawnRate = 2f;
+    [SerializeField] private float timeBetweenWaves = 20f;
+
+    [Header("UI")]
+    [SerializeField] private TextMeshProUGUI waveCountText;
+
+    private readonly List<GameObject> aliveEnemies = new List<GameObject>();
+
+    private void Start()
     {
-        waveCountText.text = "Wave " + waveCount.ToString();
-        if (waveIsDone == true)
+        if (spawnPoints == null || spawnPoints.Length == 0)
         {
-            StartCoroutine(waveSpawner());
+            Debug.LogError("EnemySpawn: не указаны точки спавна!");
+            enabled = false;
+            return;
         }
 
+        if (enemies == null || enemies.Length == 0)
+        {
+            Debug.LogError("EnemySpawn: не указаны префабы врагов!");
+            enabled = false;
+            return;
+        }
+
+        StartCoroutine(WaveLoop());
     }
 
-
-    IEnumerator waveSpawner()
+    private IEnumerator WaveLoop()
     {
-        waveCount += 1;
-        waveIsDone = false;
+        while (true)
+        {
+        
+            waveCount++;
+
+            UpdateWaveText();
+
+            Debug.Log(
+                $"Началась волна {waveCount}. " +
+                $"Количество врагов: {enemyCount}"
+            );
+
+            yield return StartCoroutine(SpawnWave());
+
+            yield return new WaitUntil(IsWaveCleared);
+
+            Debug.Log($"Волна {waveCount} зачищена!");
+
+            enemyCount += enemiesAddedPerWave;
+
+            Debug.Log(
+                $"Следующая волна через {timeBetweenWaves} секунд"
+            );
+            
+            
+            if (waveCount == 10)
+            {
+                timeBetweenWaves = 20;
+            }
+            
+            yield return new WaitForSeconds(timeBetweenWaves); // Таймер
+        }
+    }
+
+    private IEnumerator SpawnWave()
+    {
+        aliveEnemies.Clear();
+
         for (int i = 0; i < enemyCount; i++)
         {
-            GameObject enemyClone = Instantiate(enemy);
-            enemyClone.transform.position = spawnPoints[Random.Range(0, spawnPoints.Length)].position;
+            GameObject randomEnemy =
+                enemies[Random.Range(0, enemies.Length)];
 
-            yield return new WaitForSeconds(spawnRate);
+            Transform randomSpawnPoint =
+                spawnPoints[Random.Range(0, spawnPoints.Length)];
+
+            GameObject spawnedEnemy = Instantiate(
+                randomEnemy,
+                randomSpawnPoint.position,
+                randomSpawnPoint.rotation
+            );
+
+            aliveEnemies.Add(spawnedEnemy);
+
+            if (i < enemyCount - 1)
+            {
+                yield return new WaitForSeconds(spawnRate); //КД между спавном
+            }
         }
+    }
 
-        spawnRate -= 0.7f;
-        enemyCount += 3;
+    private bool IsWaveCleared()
+    {
+        aliveEnemies.RemoveAll(
+            enemy => enemy == null || !enemy.activeInHierarchy
+        );
+        return aliveEnemies.Count == 0;
+    }
 
-        yield return new WaitForSeconds(timeBetweenWaves);
-
-        waveIsDone = true;
-        
-        
+    private void UpdateWaveText()
+    {
+        if (waveCountText != null)
+        {
+            waveCountText.text = "Wave " + waveCount;
+        }
     }
 }

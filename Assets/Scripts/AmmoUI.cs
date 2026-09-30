@@ -1,47 +1,43 @@
-using System.Runtime.InteropServices.ComTypes;
-using System;
 using TMPro;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
+using UnityEngine.UI;
 
 public class AmmoUI : MonoBehaviour
 {
-    [SerializeField] private GunData _gunData;
     [SerializeField] private TMP_Text _ammoText;
-    private int _currnetAmmo;
-    private int _magSize;
-    private int lastAmmo = -1;
+    [SerializeField] private Transform weaponsParent;
+    [SerializeField] private Image icon;
 
+    private GunData _gunData;
 
-    void Awake()
+    private void Awake()
     {
         if (_ammoText == null)
         {
             _ammoText = GetComponent<TMP_Text>();
-            
-            UpdateAmmoText();
         }
     }
-    
+
     private void Update()
     {
-        if (_gunData == null || _ammoText == null)
+        if (weaponsParent == null)
             return;
 
-        if (lastAmmo != _gunData.currentAmmo)
+        Gun gun = weaponsParent.GetComponentInChildren<Gun>();
+
+        if (gun == null || gun.gunData == null)
+            return;
+
+        _gunData = gun.gunData;
+
+        if (icon != null)
         {
-            UpdateAmmoText();
+            icon.sprite = _gunData.gunIcon;
         }
-        
-        
-  
+
+        if (_ammoText != null)
+        {
+            _ammoText.text = $"{_gunData.currentAmmo} / {_gunData.magSize}";
+        }
     }
-    private void UpdateAmmoText()
-    {
-        _currnetAmmo = _gunData.currentAmmo;
-        _magSize = _gunData.magSize;
-        _ammoText.text = $"{_currnetAmmo} / {_magSize}";
-    }
-    
-    
 }

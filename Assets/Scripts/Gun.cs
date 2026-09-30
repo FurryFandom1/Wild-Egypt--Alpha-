@@ -5,7 +5,7 @@ using UnityEngine;
 public class Gun : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private GunData gunData;
+    [SerializeField] public GunData gunData;
     [SerializeField] private Transform muzzle;
     [SerializeField] private Camera playerCamera;
     [SerializeField] KeyCode keyReload = KeyCode.R;

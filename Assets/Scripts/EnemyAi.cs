@@ -23,6 +23,12 @@ public class EnemyAI : MonoBehaviour
     private float lastUpdateTime;
     private float nextAttackTime;
     private bool isDead;
+    
+    [Header("MoneyDrop")]
+    [SerializeField, Range(0f, 1f)] private float moneyDropChance;
+    [SerializeField] private int moneyAmount;
+
+
 
     void Start()
     {
@@ -116,12 +122,25 @@ public class EnemyAI : MonoBehaviour
     void Die()
     {
         isDead = true;
+        
+
+        if (MoneyManager.Instance != null)
+        {
+            MoneyManager.Instance.RewardPlayerForEnemyKill();
+        }
+        else
+        {
+            Debug.Log("Не найден MoneyManager");
+        }
+
+        
         if (audioFx != null && dieClip != null)
             audioFx.PlayOneShot(dieClip);
 
         if (agent != null) agent.enabled = false;
 
         Destroy(gameObject, 2f);
+        
     }
 
     void OnDrawGizmosSelected()

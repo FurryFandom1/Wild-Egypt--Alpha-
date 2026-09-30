@@ -57,7 +57,9 @@
         "Temp/": true
     },
     "dotnet.defaultSolution": "VoxelGameURP.sln",
+    "dotnet.enableWorkspaceBasedDevelopment": false,
     "cSpell.words": [
         "Behaviour"
     ]
+
 }
