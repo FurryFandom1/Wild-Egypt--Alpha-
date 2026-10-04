@@ -15,12 +15,14 @@ public class EnemySpawn : MonoBehaviour
     [SerializeField] private int enemiesAddedPerWave = 5;
 
     [SerializeField] private float spawnRate = 2f;
-    [SerializeField] private float timeBetweenWaves = 20f;
+    [SerializeField] private float timeBetweenWaves = 20;
 
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI waveCountText;
+    [SerializeField] private TextMeshProUGUI waveCoolDownText;
 
     private readonly List<GameObject> aliveEnemies = new List<GameObject>();
+    private static readonly WaitForSeconds oneSecond = new WaitForSeconds(1f);
 
     private void Start()
     {
@@ -37,6 +39,7 @@ public class EnemySpawn : MonoBehaviour
             enabled = false;
             return;
         }
+        
 
         StartCoroutine(WaveLoop());
     }
@@ -68,12 +71,13 @@ public class EnemySpawn : MonoBehaviour
             );
             
             
-            if (waveCount == 10)
+            if (waveCount >= 10)
             {
                 timeBetweenWaves = 20;
+                enemiesAddedPerWave = 10;
             }
             
-            yield return new WaitForSeconds(timeBetweenWaves); // Таймер
+            yield return StartCoroutine(WaveCoolDownTextUpdate());
         }
     }
 
@@ -104,6 +108,17 @@ public class EnemySpawn : MonoBehaviour
         }
     }
 
+        private IEnumerator WaveCoolDownTextUpdate()
+    {
+        for (int timer = (int)timeBetweenWaves; timer > 0; timer--)
+        {
+            waveCoolDownText.SetText("{0}", timer);
+
+            yield return oneSecond;
+        }
+
+        waveCoolDownText.SetText("");
+    }
     private bool IsWaveCleared()
     {
         aliveEnemies.RemoveAll(
