@@ -6,7 +6,7 @@ QualitySettings:
   serializedVersion: 5
   m_CurrentQuality: 1
   m_QualitySettings:
-  - serializedVersion: 4
+  - serializedVersion: 5
     name: Fastest
     pixelLightCount: 0
     shadows: 0
@@ -34,6 +34,7 @@ QualitySettings:
     adaptiveVsyncExtraA: 0
     adaptiveVsyncExtraB: 0
     lodBias: 0.3
+    meshLodThreshold: 1
     maximumLODLevel: 0
     enableLODCrossFade: 1
     streamingMipmapsActive: 0
@@ -61,7 +62,7 @@ QualitySettings:
     - WebGL
     - Android
     - Standalone
-  - serializedVersion: 4
+  - serializedVersion: 5
     name: Fast
     pixelLightCount: 0
     shadows: 0
@@ -89,6 +90,7 @@ QualitySettings:
     adaptiveVsyncExtraA: 0
     adaptiveVsyncExtraB: 0
     lodBias: 0.4
+    meshLodThreshold: 1
     maximumLODLevel: 0
     enableLODCrossFade: 1
     streamingMipmapsActive: 0
@@ -115,7 +117,7 @@ QualitySettings:
     excludedTargetPlatforms:
     - WebGL
     - Android
-  - serializedVersion: 4
+  - serializedVersion: 5
     name: Simple
     pixelLightCount: 1
     shadows: 1
@@ -143,6 +145,7 @@ QualitySettings:
     adaptiveVsyncExtraA: 0
     adaptiveVsyncExtraB: 0
     lodBias: 0.7
+    meshLodThreshold: 1
     maximumLODLevel: 0
     enableLODCrossFade: 1
     streamingMipmapsActive: 0
@@ -170,7 +173,7 @@ QualitySettings:
     - Android
     - WebGL
     - Standalone
-  - serializedVersion: 4
+  - serializedVersion: 5
     name: Good
     pixelLightCount: 2
     shadows: 2
@@ -198,6 +201,7 @@ QualitySettings:
     adaptiveVsyncExtraA: 0
     adaptiveVsyncExtraB: 0
     lodBias: 1
+    meshLodThreshold: 1
     maximumLODLevel: 0
     enableLODCrossFade: 1
     streamingMipmapsActive: 0
@@ -224,7 +228,7 @@ QualitySettings:
     excludedTargetPlatforms:
     - Android
     - WebGL
-  - serializedVersion: 4
+  - serializedVersion: 5
     name: Beautiful
     pixelLightCount: 3
     shadows: 2
@@ -252,6 +256,7 @@ QualitySettings:
     adaptiveVsyncExtraA: 0
     adaptiveVsyncExtraB: 0
     lodBias: 1.5
+    meshLodThreshold: 1
     maximumLODLevel: 0
     enableLODCrossFade: 1
     streamingMipmapsActive: 0
@@ -279,7 +284,7 @@ QualitySettings:
     - Android
     - WebGL
     - Standalone
-  - serializedVersion: 4
+  - serializedVersion: 5
     name: Fantastic
     pixelLightCount: 4
     shadows: 2
@@ -307,6 +312,7 @@ QualitySettings:
     adaptiveVsyncExtraA: 0
     adaptiveVsyncExtraB: 0
     lodBias: 2
+    meshLodThreshold: 1
     maximumLODLevel: 0
     enableLODCrossFade: 1
     streamingMipmapsActive: 0
@@ -337,6 +343,7 @@ QualitySettings:
   m_PerPlatformDefaultQuality:
     Android: 2
     Nintendo 3DS: 5
+    Nintendo Switch 2: 5
     PS4: 5
     PSM: 5
     PSP2: 2

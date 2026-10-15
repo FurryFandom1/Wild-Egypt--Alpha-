@@ -18,6 +18,11 @@ public class Gun : MonoBehaviour
     [SerializeField] public float maxDistance = 1000f;
     [SerializeField] private Transform recoilPivot;
 
+    [Header("Fire Mode Settings")]
+    //Новая переменнаяавтоматического огня , если true - автоматический огонь, а если false то одиночный выстрел
+    [SerializeField] private bool isAutomatic = false;
+    [SerializeField] private KeyCode keyFireMode = KeyCode.Q; // Новая клавиша для смены огня
+
     private Vector3 currentRecoil = Vector3.zero;
     private Vector3 targetRecoil = Vector3.zero;
 
@@ -110,10 +115,20 @@ public class Gun : MonoBehaviour
     {
         timeSinceLastShot += Time.deltaTime;
 
-        if (Input.GetButtonDown("Fire1"))
+        // Здесь происходит переключение огня на Q
+        if (Input.GetKeyDown(keyFireMode))
+        {
+            isAutomatic = !isAutomatic;
+            Debug.Log("Режим огня изменён на: " + (isAutomatic ? "АВТОМАТИЧЕСКИЙ" : "ОДИНОЧНЫЙ"));
+        }
+
+        bool fireInput = isAutomatic ? Input.GetButton("Fire1") : Input.GetButtonDown("Fire1");
+
+        if (fireInput)
         {
             Shoot();
         }
+
         if (Input.GetKeyDown(keyReload))
         {
             StartReload();

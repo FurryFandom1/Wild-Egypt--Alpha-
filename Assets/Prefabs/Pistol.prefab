@@ -49,7 +49,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6696612358673429222
 Transform:
   m_ObjectHideFlags: 0
@@ -92,6 +92,9 @@ MonoBehaviour:
   hitEffect: {fileID: 7608532037325047344, guid: 10baae3bad838484294f689eee0936bc,
     type: 3}
   maxDistance: 1000
+  recoilPivot: {fileID: 0}
+  isAutomatic: 0
+  keyFireMode: 113
 --- !u!82 &5794649589473302837
 AudioSource:
   m_ObjectHideFlags: 0
