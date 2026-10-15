@@ -1548,6 +1548,8 @@ MonoBehaviour:
     type: 3}
   maxDistance: 1000
   recoilPivot: {fileID: 2842139610783445101}
+  isAutomatic: 0
+  keyFireMode: 113
 --- !u!1 &27868409702636547
 GameObject:
   m_ObjectHideFlags: 0
@@ -1894,6 +1896,7 @@ GameObject:
   - component: {fileID: 2656101972672980417}
   - component: {fileID: 4848281624487272784}
   - component: {fileID: 1947023527293532566}
+  - component: {fileID: 8306026099288901766}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -9281,7 +9284,7 @@ GameObject:
   - component: {fileID: 4149069748664233428}
   - component: {fileID: 5437164449301054616}
   m_Layer: 6
-  m_Name: AK
+  m_Name: AK(1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10175,6 +10178,8 @@ MonoBehaviour:
     type: 3}
   maxDistance: 1000
   recoilPivot: {fileID: 2842139610783445101}
+  isAutomatic: 1
+  keyFireMode: 113
 --- !u!114 &4211896444435706196
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18996,6 +19001,20 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &8306026099288901766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 309675613959732259}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0fa38d25b45b65d4ca2e8bf6c3dada76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AK: {fileID: 3125327448274529698}
+  pistol: {fileID: 3258607268622667867}
 --- !u!23 &8358457968363448573
 MeshRenderer:
   m_ObjectHideFlags: 0
