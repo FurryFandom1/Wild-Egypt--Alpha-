@@ -1,5 +1,12 @@
 fileFormatVersion: 2
 guid: 1dda2d800037641478587ca660849cd5
+AssetOrigin:
+  serializedVersion: 1
+  productId: 312129
+  packageName: Low Poly Desert Oasis
+  packageVersion: 1.0
+  assetPath: Assets/PolyRonin/Desert Oasis Pack/Meshes/palm-trees-pack-1.fbx
+  uploadId: 735881
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -56,7 +63,7 @@ ModelImporter:
     nodeNameCollisionStrategy: 1
     fileIdsGeneration: 2
     swapUVChannels: 0
-    generateSecondaryUV: 0
+    generateSecondaryUV: 1
     useFileUnits: 1
     keepQuads: 0
     weldVertices: 1
@@ -115,10 +122,3 @@ ModelImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 312129
-  packageName: Low Poly Desert Oasis
-  packageVersion: 1.0
-  assetPath: Assets/PolyRonin/Desert Oasis Pack/Meshes/palm-trees-pack-1.fbx
-  uploadId: 735881
