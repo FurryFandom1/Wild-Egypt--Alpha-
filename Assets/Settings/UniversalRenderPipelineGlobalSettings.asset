@@ -74,8 +74,27 @@ MonoBehaviour:
       - rid: 6138700220593078272
       - rid: 6138700220593078273
     m_RuntimeSettings:
+<<<<<<< Updated upstream
       m_List: []
   m_AssetVersion: 11
+=======
+      m_List:
+      - rid: 6852985685364965378
+      - rid: 6852985685364965379
+      - rid: 6852985685364965380
+      - rid: 6852985685364965381
+      - rid: 6852985685364965384
+      - rid: 6852985685364965385
+      - rid: 6852985685364965389
+      - rid: 6852985685364965392
+      - rid: 6852985685364965393
+      - rid: 6852985685364965394
+      - rid: 8712630790384254976
+      - rid: 8028476071183384576
+      - rid: 3832550693732614208
+      - rid: 3832550693732614210
+  m_AssetVersion: 8
+>>>>>>> Stashed changes
   m_ObsoleteDefaultVolumeProfile: {fileID: 0}
   m_RenderingLayerNames:
   - Light Layer default
