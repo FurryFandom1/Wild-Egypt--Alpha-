@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class WeaponSwitcher : MonoBehaviour
 {
-    public GameObject AK; 
-    public GameObject pistol;       
+    public GameObject _primaryWeapons; 
+    public GameObject _secondaryWeapons;       
 
     void Start()
     {
@@ -26,7 +26,7 @@ public class WeaponSwitcher : MonoBehaviour
 
     void SwitchWeapon(int weaponIndex)
     {
-        AK.SetActive(weaponIndex == 0);
-        pistol.SetActive(weaponIndex == 1);
+        _primaryWeapons.SetActive(weaponIndex == 0);
+        _secondaryWeapons.SetActive(weaponIndex == 1);
     }
 }
