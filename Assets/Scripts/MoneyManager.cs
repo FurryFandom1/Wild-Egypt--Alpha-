@@ -38,10 +38,7 @@ public class MoneyManager : MonoBehaviour
 
         UpdateCoinsUI();
 
-        Debug.Log(
-            "Игрок получил " + amount +
-            ". Текущий баланс: " + currentMoney
-        );
+        Debug.Log("Игрок получил " + amount + ". Текущий баланс: " + currentMoney);
     }
 
     private void UpdateCoinsUI()

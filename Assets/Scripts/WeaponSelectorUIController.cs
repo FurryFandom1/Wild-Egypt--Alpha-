@@ -15,7 +15,12 @@ public class WeaponSelectorUIController : MonoBehaviour
     [SerializeField] private Sprite _normalSprite;
     [SerializeField] private Sprite _selectedSprite;
 
-    void Update()
+    void Start()
+    {
+        UpdateUi();
+    }
+
+    void UpdateUi()
     {
         if (_primaryWeapons.activeSelf)
         {
@@ -30,9 +35,21 @@ public class WeaponSelectorUIController : MonoBehaviour
         {
             if (_secondaryImage.sprite != _selectedSprite)
             {
-                _primaryImage.sprite = _selectedSprite;
-                _secondaryImage.sprite = _normalSprite;
+                _primaryImage.sprite = _normalSprite;
+                _secondaryImage.sprite = _selectedSprite;
             }
         }
     }
+
+    void LateUpdate()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1)
+        || Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
+        {
+            UpdateUi();
+        }
+    }
+
+
+    
 }
