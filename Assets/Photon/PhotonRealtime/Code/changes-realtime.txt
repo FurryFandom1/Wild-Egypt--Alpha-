@@ -3,14 +3,58 @@ Photon Realtime C# Client - Changelog
 www.photonengine.com  -  Join our Discord Server: https://dashboard.photonengine.com/account/profile
 
 
+Version 4.1.8.23 (10. September 2026)
+    Added: PhotonUtilitiesUnity now adds a compile define to the current build target on load: PHOTON_REALTIME_4.
+
+Version 4.1.8.22 (04. September 2026)
+    Changed: ConnectUsingSettings() checks if AppSettings.Server is an IP address. In that case, WS and WSS are refused (logged as error, returns false) and AuthMode AuthOnceWss is changed to AuthOnce (logged as warning). Before, this failed on connect with no hint about the cause.
+    Added: Support for the Video SDK. AppSettings.AppIdVideo and a property AppIdVoiceOrVideo to get the preferred AppId (Video, if the Video SDK is present). If the preferred AppId field is null or empty, the other is returned.
+    Added: ClientAppType.Video and VoiceOrVideo (for components that work with either SDK).
+
+Version 4.1.8.21 (01. July 2026)
+    No notable changes.
+
+Version 4.1.8.20 (04. June 2026)
+    Fixed: v4.1.8.19 introduced a bug where the transport protocol from the AppSettings was no longer applied. This was a sideeffect of the changes for Protocol Correction for WebGL.
+    Note: In Unity WebGL builds, it is now possible to use AuthMode AuthOnceWss with WS as selected protocol. It will use WSS on the Name Server but WS on other servers.
+
+Version 4.1.8.19 (01. June 2026)
+    Changed: Error handling in SocketWebTcp to ignore most temporary error codes when using WebSocket-sharp.
+    Fixed: For Unity WebGL, ConnectUsingSettings() first makes sure the protocol is WS/WSS, then configures AuthOnceWss with an expected protocol, if selected.
+    Removed: Surplus prococol change in the LoadBalancingClient constructor. Even for WebGL builds, it is unclear if the connection (later) is WS or WSS.
+    Changed: Initialization of static fields for Unity (to fix behaviour when Domain Reload is off).
+
+Version 4.1.8.18 (30. March 2026 - rev8338)
+    Changed: ToProtocolAddress now removes trailing slashes from the server address to connect to (especially the Name Server address for WS/WSS). This avoids issues with WS/WSS APIs which do not accept two slashes where the URL query starts (address//?query).
+    Updated: ChatPeer.ConfigUnitySockets() and LoadBalancingPeer.ConfigUnitySockets() to use the native socket implementation if available (SocketNativeSource).
+    Fixed: Null checks in SupportLogger.StopLogStats() and .StopTrackValues() for timers (that are not guaranteed to exist).
+    Fixed: LoadBalancingClient.ConnectUsingSettings will use the ProxyServer from the appSettings in all cases. Before, it was ignored when connecting to a Master Server directly.
+
+Version 4.1.8.17 (10. November 2025 - rev8151)
+    Changed: Player NickName synchronization. On entering a room, the LocalPlayer sends an update for the NickName, if the received Custom Properties have it wrong.
+    Added: Support to log in intervals .Net (non-Unity projects).
+    Changed: Order of some methods to put "helper" methods to the bottom of the file.
+    Changed: LogBasics (about the app) is now logged as normal info (no longer a warning).
+    Changed: Stopwatch for the logging is started on first log use. This sets the OnConnected time to 0. Before, it was running since creation of the SupportLogger.
+    Added: Fixed 3 digits for Milliseconds in GetFormattedTimestamp().
+
+Version 4.1.8.16 (31. July 2025 - rev8016)
+    Updated: Reference doc summary for Player.IsInactive.
+    Note: Minimal release to make a small update available for the Voice SDK.
+
+Version 4.1.8.15 (08. May 2025 - rev7931)
+    Changed: ConfigUnitySockets() for WebGL. It no longer logs a warning if the SocketWebTcp is missing in the Editor. It logs an error if the JS lib for WebSockets is missing.
+    Changed: PingHttp will now use HTTPs as scheme unless it runs in Editor below Unity 6.
+    Changed: When the app closes, the ConnectionHandler will set IsSimulationEnabled = false to work around a problem with closing the Network Sim Thread in some Unity 6 builds. Il2cpp builds were freezing on app quit, if the Network Simulation thread was running.
+
 Version 4.1.8.14 (11. March 2025 - rev7866)
     Moved: DNS resolution for Best Region detection from RegionPinger.Start() to RegionPingThreaded() / RegionPingCoroutine(). This is off the main thread, where possible.
-	Added: Log.Info() in case the DNS resolution (for Best Region selection) took longer than 100ms to finish for any given address.
-	Changed: ReconnectAndRejoin() will clear any Matchmaking Ticket before doing a reconnect and rejoin. The expectation is that the room still has this user as inactive and allows re-join.
-	Changed: OpLeaveRoom() to change local state only if the client is in a room and can send (queue) the operation successfully.
-	Changed: WebSocket implementation to receive incoming messages via callbacks. One benefit is that this avoids using a Coroutine in Unity WebGL to receive messages. At the same time our WebSocket code now also implements all typical callbacks for WS/WSS.
-	Note: The goal is to process incoming messages in WebGL (and with WebSocket-sharp) more directly. This specifically helps the Voice SDK on WebGL to process the stream while in background.
-	Changed: WebSocket.jslib replicates standard js websocket methods and callbacks in its interface instead of caching messages for polling.
+    Added: Log.Info() in case the DNS resolution (for Best Region selection) took longer than 100ms to finish for any given address.
+    Changed: ReconnectAndRejoin() will clear any Matchmaking Ticket before doing a reconnect and rejoin. The expectation is that the room still has this user as inactive and allows re-join.
+    Changed: OpLeaveRoom() to change local state only if the client is in a room and can send (queue) the operation successfully.
+    Changed: WebSocket implementation to receive incoming messages via callbacks. One benefit is that this avoids using a Coroutine in Unity WebGL to receive messages. At the same time our WebSocket code now also implements all typical callbacks for WS/WSS.
+    Note: The goal is to process incoming messages in WebGL (and with WebSocket-sharp) more directly. This specifically helps the Voice SDK on WebGL to process the stream while in background.
+    Changed: WebSocket.jslib replicates standard js websocket methods and callbacks in its interface instead of caching messages for polling.
 
 Version 4.1.8.13 (09. January 2025 - rev7815)
     Changed: RealtimeFallback() will no longer call client.Disconnect if the client is disconnecting already.

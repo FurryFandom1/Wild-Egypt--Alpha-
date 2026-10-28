@@ -223,7 +223,11 @@ namespace Photon.Realtime
         /// <summary>Voice apps stream audio.</summary>
         Voice,
         /// <summary>Fusion clients are for matchmaking and relay in Photon Fusion.</summary>
-        Fusion
+        Fusion,
+        /// <summary>Video apps stream video (and audio).</summary>
+        Video,
+        /// <summary>Used for components that work for either Voice or Video SDK. These get AppSettings.AppIdVoiceOrVideo.</summary>
+        VoiceOrVideo
     }
 
     /// <summary>
@@ -836,14 +840,6 @@ namespace Photon.Realtime
             CustomTypesUnity.Register();
             #endif
 
-            #if UNITY_WEBGL
-            if (this.LoadBalancingPeer.TransportProtocol == ConnectionProtocol.Tcp || this.LoadBalancingPeer.TransportProtocol == ConnectionProtocol.Udp)
-            {
-                this.LoadBalancingPeer.Listener.DebugReturn(DebugLevel.WARNING, "WebGL requires WebSockets. Switching TransportProtocol to WebSocketSecure.");
-                this.LoadBalancingPeer.TransportProtocol = ConnectionProtocol.WebSocketSecure;
-            }
-            #endif
-
             this.State = ClientState.PeerCreated;
         }
 
@@ -910,7 +906,7 @@ namespace Photon.Realtime
             }
 
             Uri uri = new Uri(protocolScheme + address);
-            string result = $"{uri.Scheme}://{uri.Host}:{port}{uri.AbsolutePath}";
+            string result = $"{uri.Scheme}://{uri.Host}:{port}{uri.AbsolutePath}".TrimEnd('/');
 
             if (this.AddressRewriter != null)
             {
@@ -947,6 +943,9 @@ namespace Photon.Realtime
         /// - Network issues<br/>
         /// - Region not available<br/>
         /// - Subscription CCU limit<br/>
+        /// <br/>
+        /// Components that can work for the Voice SDK or the Video SDK can use ClientAppType.VoiceOrVideo.
+        /// ConnectUsingSettings will use AppIdVoiceOrVideo to connect.
         /// </remarks>
         /// <see cref="IConnectionCallbacks"/>
         /// <see cref="AuthValues"/>
@@ -973,6 +972,12 @@ namespace Photon.Realtime
                     break;
                 case ClientAppType.Voice:
                     this.AppId = appSettings.AppIdVoice;
+                    break;
+                case ClientAppType.Video:
+                    this.AppId = appSettings.AppIdVideo;
+                    break;
+                case ClientAppType.VoiceOrVideo:
+                    this.AppId = appSettings.AppIdVoiceOrVideo;
                     break;
                 case ClientAppType.Fusion:
                     this.AppId = appSettings.AppIdFusion;
@@ -1001,6 +1006,7 @@ namespace Photon.Realtime
             }
 
             this.EnableProtocolFallback = appSettings.EnableProtocolFallback;
+            this.ProxyServerAddress = appSettings.ProxyServer;
 
             this.bestRegionSummaryFromStorage = appSettings.BestRegionSummaryFromStorage;
             this.DisconnectedCause = DisconnectCause.None;
@@ -1011,6 +1017,30 @@ namespace Photon.Realtime
             this.CheckConnectSetupWebGl();
 
 
+            // an IP address as server means: self-hosted. WS/WSS require a hostname (TLS certificates don't cover IPs), so refuse those and downgrade AuthOnceWss (which uses WSS on the Name Server).
+            // note: this check must be done after CheckConnectSetupWebGl(), which may switch the protocol to WSS.
+            System.Net.IPAddress serverIpAddress;
+            if (!string.IsNullOrEmpty(appSettings.Server) && System.Net.IPAddress.TryParse(appSettings.Server, out serverIpAddress))
+            {
+                if (this.LoadBalancingPeer.TransportProtocol == ConnectionProtocol.WebSocket || this.LoadBalancingPeer.TransportProtocol == ConnectionProtocol.WebSocketSecure)
+                {
+                    if (this.AuthMode != AuthModeOption.AuthOnceWss || this.ExpectedProtocol == ConnectionProtocol.WebSocket || this.ExpectedProtocol == ConnectionProtocol.WebSocketSecure)
+                    {
+                        this.DebugReturn(DebugLevel.ERROR, "ConnectUsingSettings() failed. AppSettings.Server is an IP address. Can not use WS or WSS protocols with IP addresses.");
+                        return false;
+                    }
+                }
+
+                if (this.AuthMode == AuthModeOption.AuthOnceWss)
+                {
+                    this.DebugReturn(DebugLevel.WARNING, "AppSettings.Server is an IP address. Changing this client's AuthMode to AuthOnce.");
+                    this.AuthMode = AuthModeOption.AuthOnce;
+                    this.LoadBalancingPeer.TransportProtocol = (ConnectionProtocol)this.ExpectedProtocol;
+                    this.ExpectedProtocol = null;
+                }
+            }
+
+
             if (this.IsUsingNameServer)
             {
                 this.Server = ServerConnection.NameServer;
@@ -1019,7 +1049,6 @@ namespace Photon.Realtime
                     this.NameServerHost = appSettings.Server;
                 }
 
-                this.ProxyServerAddress = appSettings.ProxyServer;
                 this.NameServerPortInAppSettings = appSettings.Port;
 
                 if (!this.LoadBalancingPeer.Connect(this.NameServerAddress, this.ProxyServerAddress, this.AppId, this.TokenForInit))
@@ -1237,10 +1266,22 @@ namespace Photon.Realtime
         private void CheckConnectSetupWebGl()
         {
             #if UNITY_WEBGL
+            bool protocolCorrected = false;
             if (this.LoadBalancingPeer.TransportProtocol != ConnectionProtocol.WebSocket && this.LoadBalancingPeer.TransportProtocol != ConnectionProtocol.WebSocketSecure)
             {
-                this.DebugReturn(DebugLevel.WARNING, "WebGL requires WebSockets. Switching TransportProtocol to WebSocketSecure.");
                 this.LoadBalancingPeer.TransportProtocol = ConnectionProtocol.WebSocketSecure;
+                protocolCorrected = true;
+            }
+
+            if (this.ExpectedProtocol != null && this.ExpectedProtocol != ConnectionProtocol.WebSocket && this.ExpectedProtocol != ConnectionProtocol.WebSocketSecure)
+            {
+                this.ExpectedProtocol = ConnectionProtocol.WebSocketSecure;
+                protocolCorrected = true;
+            }
+
+            if (protocolCorrected)
+            {
+                this.DebugReturn(DebugLevel.WARNING, "Info: WebGL requires WebSockets. Switching to WebSocketSecure.");
             }
 
             this.EnableProtocolFallback = false; // no fallback on WebGL
@@ -3356,7 +3397,7 @@ namespace Photon.Realtime
 
                 case StatusCode.TimeoutDisconnect:
                     this.SystemConnectionSummary = new SystemConnectionSummary(this);
-                    this.DebugReturn(DebugLevel.ERROR, $"Connection lost. OnStatusChanged to {statusCode}. Client state was: {this.State}. {this.SystemConnectionSummary.ToString()}");
+                    this.DebugReturn(DebugLevel.ERROR, $"Connection lost. OnStatusChanged to {statusCode}. Client state was: {this.State} ({this.CurrentServerAddress}). {this.SystemConnectionSummary.ToString()}");
 
                     this.DisconnectedCause = DisconnectCause.ClientTimeout;
                     nextState = ClientState.Disconnecting;
@@ -4306,6 +4347,7 @@ namespace Photon.Realtime
         /// <param name="errorInfo">Object containing information about the error</param>
         void OnErrorInfo(ErrorInfo errorInfo);
     }
+
 
     /// <summary>
     /// Container type for callbacks defined by IConnectionCallbacks. See LoadBalancingCallbackTargets.

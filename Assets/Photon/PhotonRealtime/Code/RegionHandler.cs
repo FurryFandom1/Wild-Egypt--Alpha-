@@ -234,8 +234,16 @@ namespace Photon.Realtime
         /// <summary>True if the pinging of regions is being aborted.</summary>
         /// <see cref="Abort"/>
         public bool Aborted { get; private set; }
+
         #if SUPPORTED_UNITY
         private MonoBehaviourEmpty emptyMonoBehavior;
+
+        [RuntimeInitializeOnLoadMethod]
+        private static void Init()
+        {
+            PingImplementation = null;
+            PortToPingOverride = 0;
+        }
         #endif
 
         #if PHOTON_LOCATION
@@ -468,6 +476,15 @@ namespace Photon.Realtime
         private Region region;
         private string regionAddress;
 
+        #if SUPPORTED_UNITY
+        [RuntimeInitializeOnLoadMethod]
+        public static void InitStatic()
+        {
+            Attempts = 5;
+            MaxMillisecondsPerPing = 800;
+            PingWhenFailed = Attempts * MaxMillisecondsPerPing;
+        }
+        #endif
 
         /// <summary>Initializes a RegionPinger for the given region.</summary>
         public RegionPinger(Region region, Action<Region> onDoneCallback)

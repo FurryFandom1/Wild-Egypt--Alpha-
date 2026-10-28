@@ -206,7 +206,7 @@ namespace UnityEditor.AI
 
             Vector3 pos;
 
-            if (navLink.GetInstanceID() == s_SelectedID && s_SelectedPoint == 0)
+            if (navLink.GetEntityId().GetHashCode() == s_SelectedID && s_SelectedPoint == 0)
             {
                 EditorGUI.BeginChangeCheck();
                 Handles.CubeHandleCap(0, startPt, zup, 0.1f * startSize, Event.current.type);
@@ -222,11 +222,11 @@ namespace UnityEditor.AI
                 if (Handles.Button(startPt, zup, 0.1f * startSize, 0.1f * startSize, Handles.CubeHandleCap))
                 {
                     s_SelectedPoint = 0;
-                    s_SelectedID = navLink.GetInstanceID();
+                    s_SelectedID = navLink.GetEntityId().GetHashCode(); s_SelectedID = navLink.GetEntityId().GetHashCode();
                 }
             }
 
-            if (navLink.GetInstanceID() == s_SelectedID && s_SelectedPoint == 1)
+            if (navLink.GetEntityId().GetHashCode() == s_SelectedID && s_SelectedPoint == 1)
             {
                 EditorGUI.BeginChangeCheck();
                 Handles.CubeHandleCap(0, endPt, zup, 0.1f * startSize, Event.current.type);
@@ -242,7 +242,7 @@ namespace UnityEditor.AI
                 if (Handles.Button(endPt, zup, 0.1f * endSize, 0.1f * endSize, Handles.CubeHandleCap))
                 {
                     s_SelectedPoint = 1;
-                    s_SelectedID = navLink.GetInstanceID();
+                    
                 }
             }
 

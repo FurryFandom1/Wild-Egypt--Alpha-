@@ -19,6 +19,7 @@ namespace Photon.Realtime
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using ExitGames.Client.Photon;
 
     #if SUPPORTED_UNITY
@@ -42,6 +43,7 @@ namespace Photon.Realtime
     {
         /// <summary>Obsolete accessor to the RegionHandler.PingImplementation.</summary>
         [Obsolete("Use RegionHandler.PingImplementation directly.")]
+        [SuppressMessage("Domain reload", "UDR0001:Domain Reload Analyzer", Justification = "This just provides access to RegionHandler.PingImplementation which is taken care of.")]
         protected internal static Type PingImplementation
         {
             get { return RegionHandler.PingImplementation; }
@@ -82,7 +84,7 @@ namespace Photon.Realtime
         private void ConfigUnitySockets()
         {
             Type websocketType = null;
-            #if (UNITY_XBOXONE || UNITY_GAMECORE) && !UNITY_EDITOR
+            #if (UNITY_XBOXONE || UNITY_GAMECORE || UNITY_SWITCH2) && !UNITY_EDITOR
             websocketType = Type.GetType("ExitGames.Client.Photon.SocketNativeSource, Assembly-CSharp", false);
             if (websocketType == null)
             {
@@ -94,7 +96,7 @@ namespace Photon.Realtime
             }
             if (websocketType != null)
             {
-                this.SocketImplementationConfig[ConnectionProtocol.Udp] = websocketType;    // on Xbox, the native socket plugin supports UDP as well
+                this.SocketImplementationConfig[ConnectionProtocol.Udp] = websocketType;    // the native socket plugin supports UDP as well
             }
             #else
             // to support WebGL export in Unity, we find and assign the SocketWebTcp class (if it's in the project).
@@ -108,10 +110,10 @@ namespace Photon.Realtime
             {
                 websocketType = Type.GetType("ExitGames.Client.Photon.SocketWebTcp, Assembly-CSharp", false);
             }
-            #if UNITY_WEBGL
-            if (websocketType == null && this.DebugOut >= DebugLevel.WARNING)
+            #if UNITY_WEBGL && !UNITY_EDITOR
+            if (websocketType == null && this.DebugOut >= DebugLevel.ERROR)
             {
-                this.Listener.DebugReturn(DebugLevel.WARNING, "SocketWebTcp type not found in the usual Assemblies. This is required as wrapper for the browser WebSocket API. Make sure to make the PhotonLibs\\WebSocket code available.");
+                this.Listener.DebugReturn(DebugLevel.ERROR, "SocketWebTcp type not found in the usual Assemblies. This is required as wrapper for the browser WebSocket API. Make sure to make the PhotonLibs\\WebSocket code available.");
             }
             #endif
             #endif
@@ -1332,7 +1334,7 @@ namespace Photon.Realtime
     /// </remarks>
     public class ActorProperties
     {
-        /// <summary>(255) Name of a player/actor.</summary>
+        /// <summary>(255) NickName of a player/actor.</summary>
         public const byte PlayerName = 255; // was: 1
 
         /// <summary>(254) Tells you if the player is currently in this game (getting events live).</summary>
