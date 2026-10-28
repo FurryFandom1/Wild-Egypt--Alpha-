@@ -19,95 +19,188 @@ public class Gun : MonoBehaviour
     [SerializeField] private Transform recoilPivot;
 
     [Header("Fire Mode Settings")]
-    //Новая переменнаяавтоматического огня , если true - автоматический огонь, а если false то одиночный выстрел
     [SerializeField] private bool isAutomatic = false;
-    [SerializeField] private KeyCode keyFireMode = KeyCode.Q; // Новая клавиша для смены огня
+    [SerializeField] private KeyCode keyFireMode = KeyCode.Q;
+
+    public bool IsReloading => gunData != null && gunData.reloading;
 
     private Vector3 currentRecoil = Vector3.zero;
     private Vector3 targetRecoil = Vector3.zero;
 
-    private void Start()
+    private Vector3 startGunLocalPos;
+    private Quaternion startGunLocalRot;
+    private Animator cachedAnimator;
+
+    private void Awake()
     {
-        gunData.currentAmmo = gunData.magSize;
-        gunData.reloading = false;
+        switch (true)
+        {
+            case bool _ when playerCamera == null:
+                playerCamera = Camera.main;
+                break;
+        }
+
+        switch (true)
+        {
+            case bool _ when gun == null:
+                gun = gameObject;
+                break;
+        }
+
+        gun.TryGetComponent(out cachedAnimator);
+
+        switch (true)
+        {
+            case bool _ when gunData != null:
+                gunData.currentAmmo = gunData.magSize;
+                gunData.reloading = false;
+                break;
+        }
+
+        switch (true)
+        {
+            case bool _ when gun != null:
+                startGunLocalPos = gun.transform.localPosition;
+                startGunLocalRot = gun.transform.localRotation;
+                break;
+        }
+    }
+
+    private void OnEnable()
+    {
+        StopAllCoroutines();
+
+        switch (true)
+        {
+            case bool _ when gunData != null:
+                gunData.reloading = false;
+                break;
+        }
+
+        switch (true)
+        {
+            case bool _ when gun != null && cachedAnimator != null:
+                cachedAnimator.enabled = false;
+                gun.transform.localPosition = startGunLocalPos;
+                gun.transform.localRotation = startGunLocalRot;
+                cachedAnimator.enabled = true;
+                cachedAnimator.Rebind();
+                cachedAnimator.Update(0f);
+                cachedAnimator.Play("New State", 0, 0f);
+                break;
+        }
+
+        currentRecoil = Vector3.zero;
+        targetRecoil = Vector3.zero;
+
+        switch (true)
+        {
+            case bool _ when recoilPivot != null:
+                recoilPivot.transform.localRotation = Quaternion.identity;
+                break;
+        }
     }
 
     public void StartReload()
     {
-        if (!gunData.reloading)
+        switch (true)
         {
-            StartCoroutine(Reload());
+            case bool _ when gunData != null && !gunData.reloading:
+                StartCoroutine(Reload());
+                break;
         }
     }
 
     private IEnumerator Reload()
     {
         gunData.reloading = true;
-        gun.GetComponent<Animator>().Play("reloading");
+
+        switch (true)
+        {
+            case bool _ when cachedAnimator != null:
+                cachedAnimator.Play("reloading");
+                break;
+        }
+
         yield return new WaitForSeconds(gunData.reloadTime);
 
-        gun.GetComponent<Animator>().Play("New State");
+        switch (true)
+        {
+            case bool _ when cachedAnimator != null:
+                cachedAnimator.Play("New State");
+                break;
+        }
+
         gunData.currentAmmo = gunData.magSize;
         gunData.reloading = false;
     }
 
-    private bool CanShoot() => !gunData.reloading && timeSinceLastShot > 1f / (gunData.fireRate / 60f);
+    private bool CanShoot() => gunData != null && !gunData.reloading && timeSinceLastShot > 1f / (gunData.fireRate / 60f);
 
     public void Shoot()
     {
-        if (gunData.currentAmmo > 0)
+        switch (true)
         {
-            if (CanShoot())
-            {
-                Vector3 origin = playerCamera.transform.position;
-                Vector3 dir = playerCamera.transform.forward;
+            case bool _ when gunData != null && gunData.currentAmmo > 0 && CanShoot():
+                ExecuteShoot();
+                break;
+        }
+    }
 
-                int layerMask = ~LayerMask.GetMask("Player");
+    private void ExecuteShoot()
+    {
+        switch (true)
+        {
+            case bool _ when playerCamera == null:
+                return;
+        }
 
-                bool hasHit = Physics.Raycast(
-                    origin,
-                    dir,
-                    out RaycastHit hitInfo,
-                    gunData.maxDistance,
-                    layerMask
-                );
+        Vector3 origin = playerCamera.transform.position;
+        Vector3 dir = playerCamera.transform.forward;
+        int layerMask = ~LayerMask.GetMask("Player");
 
-                gunData.currentAmmo--;
-                timeSinceLastShot = 0;
+        bool hasHit = Physics.Raycast(origin, dir, out RaycastHit hitInfo, gunData.maxDistance, layerMask);
 
-                if (muzzleFlash != null)
-                    muzzleFlash.Play();
+        gunData.currentAmmo--;
+        timeSinceLastShot = 0;
 
-                if (_audioSource != null && shotFX != null)
-                    _audioSource.PlayOneShot(shotFX);
+        muzzleFlash?.Play();
 
-                StartCoroutine(startRecoil());
-                ApplyRecoil();
+        switch (true)
+        {
+            case bool _ when _audioSource != null && shotFX != null:
+                _audioSource.PlayOneShot(shotFX);
+                break;
+        }
 
-                if (hasHit)
-                {
-                    EnemyAI enemy = hitInfo.transform.GetComponent<EnemyAI>();
-                    if (enemy == null)
-                    {
-                        enemy = hitInfo.transform.GetComponentInParent<EnemyAI>();
-                    }
+        StartCoroutine(startRecoil());
+        ApplyRecoil();
 
-                    if (enemy != null)
-                    {
-                        enemy.TakeDamage(gunData.damage);
-                    }
+        switch (true)
+        {
+            case bool _ when hasHit:
+                HandleHit(hitInfo);
+                break;
+        }
+    }
 
-                    if (hitEffect != null)
-                    {
-                        GameObject impact = Instantiate(
-                            hitEffect,
-                            hitInfo.point,
-                            Quaternion.LookRotation(hitInfo.normal)
-                        );
-                        Destroy(impact, 1f);
-                    }
-                }
-            }
+    private void HandleHit(RaycastHit hitInfo)
+    {
+        EnemyAI enemy = hitInfo.transform.GetComponent<EnemyAI>() ?? hitInfo.transform.GetComponentInParent<EnemyAI>();
+
+        switch (true)
+        {
+            case bool _ when enemy != null:
+                enemy.TakeDamage(gunData.damage);
+                break;
+        }
+
+        switch (true)
+        {
+            case bool _ when hitEffect != null:
+                GameObject impact = Instantiate(hitEffect, hitInfo.point, Quaternion.LookRotation(hitInfo.normal));
+                Destroy(impact, 1f);
+                break;
         }
     }
 
@@ -115,23 +208,27 @@ public class Gun : MonoBehaviour
     {
         timeSinceLastShot += Time.deltaTime;
 
-        // Здесь происходит переключение огня на Q
-        if (Input.GetKeyDown(keyFireMode))
+        switch (true)
         {
-            isAutomatic = !isAutomatic;
-            Debug.Log("Режим огня изменён на: " + (isAutomatic ? "АВТОМАТИЧЕСКИЙ" : "ОДИНОЧНЫЙ"));
+            case bool _ when Input.GetKeyDown(keyFireMode):
+                isAutomatic = !isAutomatic;
+                break;
         }
 
         bool fireInput = isAutomatic ? Input.GetButton("Fire1") : Input.GetButtonDown("Fire1");
 
-        if (fireInput)
+        switch (true)
         {
-            Shoot();
+            case bool _ when fireInput:
+                Shoot();
+                break;
         }
 
-        if (Input.GetKeyDown(keyReload))
+        switch (true)
         {
-            StartReload();
+            case bool _ when Input.GetKeyDown(keyReload):
+                StartReload();
+                break;
         }
 
         UpdateRecoil();
@@ -139,13 +236,31 @@ public class Gun : MonoBehaviour
 
     IEnumerator startRecoil()
     {
-        gun.GetComponent<Animator>().Play("recoil");
+        switch (true)
+        {
+            case bool _ when cachedAnimator != null:
+                cachedAnimator.Play("recoil");
+                break;
+        }
+
         yield return new WaitForSeconds(0.2f);
-        gun.GetComponent<Animator>().Play("New State");
+
+        switch (true)
+        {
+            case bool _ when gameObject.activeInHierarchy && cachedAnimator != null:
+                cachedAnimator.Play("New State");
+                break;
+        }
     }
 
     void ApplyRecoil()
     {
+        switch (true)
+        {
+            case bool _ when gunData == null:
+                return;
+        }
+
         float vertical = UnityEngine.Random.Range(-gunData.recoilVertical * 0.5f, gunData.recoilVertical);
         float horizontal = UnityEngine.Random.Range(-gunData.recoilHorizontal, gunData.recoilHorizontal);
 
@@ -156,12 +271,20 @@ public class Gun : MonoBehaviour
 
     void UpdateRecoil()
     {
+        switch (true)
+        {
+            case bool _ when gunData == null:
+                return;
+        }
+
         targetRecoil = Vector3.Lerp(targetRecoil, Vector3.zero, gunData.recoilSpeed * Time.deltaTime);
         currentRecoil = Vector3.Lerp(currentRecoil, targetRecoil, gunData.recoilSpeed * Time.deltaTime);
 
-        if (playerCamera != null)
+        switch (true)
         {
-            recoilPivot.transform.localRotation = Quaternion.Euler(currentRecoil);
+            case bool _ when playerCamera != null && recoilPivot != null:
+                recoilPivot.transform.localRotation = Quaternion.Euler(currentRecoil);
+                break;
         }
     }
 }

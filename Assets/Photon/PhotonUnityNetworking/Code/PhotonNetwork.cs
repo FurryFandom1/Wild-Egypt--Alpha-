@@ -64,7 +64,7 @@ namespace Photon.Pun
     public static partial class PhotonNetwork
     {
         /// <summary>Version number of PUN. Used in the AppVersion, which separates your playerbase in matchmaking.</summary>
-        public const string PunVersion = "2.50";
+        public const string PunVersion = "2.56";
 
         /// <summary>Version number of your game. Setting this updates the AppVersion, which separates your playerbase in matchmaking.</summary>
         /// <remarks>
@@ -1029,10 +1029,7 @@ namespace Photon.Pun
             #else
 
                 #if UNITY_2019_4_OR_NEWER
-                if (NetworkingClient == null)
-                {
-                    NetworkingClient = new LoadBalancingClient();
-                }
+                // modern unity editor versions use RuntimeInitializeOnLoadMethod, so this constructor does not need to do anything
                 #else
                 StaticReset();  // in OLDER unity editor versions there is no RuntimeInitializeOnLoadMethod, so call reset
                 #endif
@@ -1149,18 +1146,9 @@ namespace Photon.Pun
 
             SetupLogging();
 
-
-            NetworkingClient.LoadBalancingPeer.TransportProtocol = appSettings.Protocol;
-            NetworkingClient.ExpectedProtocol = null;
-            NetworkingClient.EnableProtocolFallback = appSettings.EnableProtocolFallback;
-            NetworkingClient.AuthMode = appSettings.AuthMode;
-
-
             IsMessageQueueRunning = true;
             NetworkingClient.AppId = appSettings.AppIdRealtime;
             GameVersion = appSettings.AppVersion;
-
-
 
             if (startInOfflineMode)
             {
@@ -1176,37 +1164,7 @@ namespace Photon.Pun
             }
 
 
-            NetworkingClient.EnableLobbyStatistics = appSettings.EnableLobbyStatistics;
-            NetworkingClient.ProxyServerAddress = appSettings.ProxyServer;
-
-
-            if (appSettings.IsMasterServerAddress)
-            {
-                if (AuthValues == null)
-                {
-                    AuthValues = new AuthenticationValues(Guid.NewGuid().ToString());
-                }
-                else if (string.IsNullOrEmpty(AuthValues.UserId))
-                {
-                    AuthValues.UserId = Guid.NewGuid().ToString();
-                }
-                return ConnectToMaster(appSettings.Server, appSettings.Port, appSettings.AppIdRealtime);
-            }
-
-
-            NetworkingClient.NameServerPortInAppSettings = appSettings.Port;
-            if (!appSettings.IsDefaultNameServer)
-            {
-                NetworkingClient.NameServerHost = appSettings.Server;
-            }
-
-
-            if (appSettings.IsBestRegion)
-            {
-                return ConnectToBestCloudServer();
-            }
-
-            return ConnectToRegion(appSettings.FixedRegion);
+            return NetworkingClient.ConnectUsingSettings(appSettings);
         }
 
 
@@ -1227,6 +1185,7 @@ namespace Photon.Pun
         /// <param name="masterServerAddress">The server's address (either your own or Photon Cloud address).</param>
         /// <param name="port">The server's port to connect to.</param>
         /// <param name="appID">Your application ID (Photon Cloud provides you with a GUID for your game).</param>
+        [Obsolete("Replace with ConnectUsingSettings(). In the settings, set UseNameServer to false, set a Server and Port.")]
         public static bool ConnectToMaster(string masterServerAddress, int port, string appID)
         {
             // TODO: refactor NetworkingClient.LoadBalancingPeer.PeerState to not use the peer but LBC.connected or so
@@ -1286,6 +1245,7 @@ namespace Photon.Pun
         /// In general check out the <see cref="DisconnectCause"/> from the <see cref="IConnectionCallbacks.OnDisconnected"/> callback.
         /// </remarks>
         /// <returns>If this client is going to connect to cloud server based on ping. Even if true, this does not guarantee a connection but the attempt is being made.</returns>
+        [Obsolete("Replace with ConnectUsingSettings(). Don't set a Fixed Region in the settings to connect to the region with best ping.")]
         public static bool ConnectToBestCloudServer()
         {
             if (NetworkingClient.LoadBalancingPeer.PeerState != PeerStateValue.Disconnected)
@@ -1323,6 +1283,7 @@ namespace Photon.Pun
         ///
         /// Once connected, check the value of CurrentCluster.
         /// </remarks>
+        [Obsolete("Replace with ConnectUsingSettings() and set a FixedRegion in the settings.")]
         public static bool ConnectToRegion(string region)
         {
             if (NetworkingClient.LoadBalancingPeer.PeerState != PeerStateValue.Disconnected && NetworkingClient.Server != ServerConnection.NameServer)

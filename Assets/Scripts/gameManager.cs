@@ -1,25 +1,29 @@
-using Photon.Pun;
-using Unity.Mathematics;
 using UnityEngine;
+using Photon.Pun;
+using Photon.Realtime;
 
-public class gameManager : MonoBehaviour
+public class gameManager : MonoBehaviourPunCallbacks
 {
-    [SerializeField] private GameObject spawnPrefab;
-    [SerializeField] private Transform spawnPoint;
-    
-    private void Start() 
-    {
-        GameObject player = PhotonNetwork.Instantiate(
-            spawnPrefab.name, 
-            spawnPoint.position, 
-            Quaternion.identity
-        );
-        
-        // Принудительная инициализация для локального игрока
-        if (player.GetComponent<PhotonView>().IsMine)
-        {
-            player.GetComponent<FirstPersonController>().enabled = true;
+    public GameObject spawnPrefab;
+    public Transform spawnPoint;
 
+    void Start()
+    {
+        PhotonNetwork.ConnectUsingSettings();
+    }
+
+    public override void OnConnectedToMaster()
+    {
+        RoomOptions roomOptions = new RoomOptions();
+        roomOptions.MaxPlayers = 4;
+        PhotonNetwork.JoinOrCreateRoom("Room1", roomOptions, TypedLobby.Default);
+    }
+
+    public override void OnJoinedRoom()
+    {
+        if (spawnPrefab != null && spawnPoint != null)
+        {
+            PhotonNetwork.Instantiate(spawnPrefab.name, spawnPoint.position, spawnPoint.rotation);
         }
     }
 }

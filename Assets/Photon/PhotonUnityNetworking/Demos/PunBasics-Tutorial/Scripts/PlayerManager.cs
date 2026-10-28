@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="PlayerManager.cs" company="Exit Games GmbH">
 //   Part of: Photon Unity Networking Demos
 // </copyright>
@@ -122,7 +122,6 @@ namespace Photon.Pun.Demo.PunBasics
 		}
 
         private bool leavingRoom;
-        public static object instance;
 
         /// <summary>
         /// MonoBehaviour method called on GameObject by Unity on every frame.

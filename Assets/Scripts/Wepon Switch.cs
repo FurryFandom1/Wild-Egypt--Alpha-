@@ -2,31 +2,40 @@ using UnityEngine;
 
 public class WeaponSwitcher : MonoBehaviour
 {
-    public GameObject _primaryWeapons; 
-    public GameObject _secondaryWeapons;       
+    public GameObject assaultRifle;
+    public GameObject pistol;
 
     void Start()
     {
-        SwitchWeapon(0);
+        SwitchToWeapon(0);
     }
 
     void Update()
     {
+        GameObject activeWeapon = assaultRifle.activeSelf ? assaultRifle : pistol;
+        Gun activeGunScript = activeWeapon.GetComponentInChildren<Gun>();
+
+        switch (true)
+        {
+            case bool _ when activeGunScript != null && activeGunScript.IsReloading:
+                return;
+        }
+
         switch (true)
         {
             case bool _ when Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1):
-                SwitchWeapon(0); 
+                SwitchToWeapon(0);
                 break;
 
             case bool _ when Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2):
-                SwitchWeapon(1); 
+                SwitchToWeapon(1);
                 break;
         }
     }
 
-    void SwitchWeapon(int weaponIndex)
+    void SwitchToWeapon(int weaponIndex)
     {
-        _primaryWeapons.SetActive(weaponIndex == 0);
-        _secondaryWeapons.SetActive(weaponIndex == 1);
+        assaultRifle.SetActive(weaponIndex == 0);
+        pistol.SetActive(weaponIndex == 1);
     }
 }
