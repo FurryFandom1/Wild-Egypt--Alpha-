@@ -191,7 +191,16 @@ public class Gun : MonoBehaviour
         switch (true)
         {
             case bool _ when enemy != null:
-                enemy.TakeDamage(gunData.damage);
+                float finalDamage = gunData.damage;
+
+                switch (true)
+                {
+                    case bool _ when hitInfo.collider.TryGetComponent(out Hitbox hitbox):
+                        finalDamage *= hitbox.damageMultiplier;
+                        break;
+                }
+
+                enemy.TakeDamage(finalDamage);
                 break;
         }
 
