@@ -16,7 +16,7 @@ namespace UnityEditor.AI
         SerializedProperty m_StartPoint;
         SerializedProperty m_Width;
 
-        static int s_SelectedID;
+        static NavMeshLink s_SelectedLink;
         static int s_SelectedPoint = -1;
 
         static Color s_HandleColor = new Color(255f, 167f, 39f, 210f) / 255;
@@ -33,7 +33,7 @@ namespace UnityEditor.AI
             m_StartPoint = serializedObject.FindProperty("m_StartPoint");
             m_Width = serializedObject.FindProperty("m_Width");
 
-            s_SelectedID = 0;
+            s_SelectedLink = null;
             s_SelectedPoint = -1;
 
             NavMeshVisualizationSettings.showNavigation++;
@@ -206,7 +206,7 @@ namespace UnityEditor.AI
 
             Vector3 pos;
 
-            if (navLink.GetInstanceID() == s_SelectedID && s_SelectedPoint == 0)
+            if (s_SelectedLink == navLink && s_SelectedPoint == 0)
             {
                 EditorGUI.BeginChangeCheck();
                 Handles.CubeHandleCap(0, startPt, zup, 0.1f * startSize, Event.current.type);
@@ -222,12 +222,11 @@ namespace UnityEditor.AI
                 if (Handles.Button(startPt, zup, 0.1f * startSize, 0.1f * startSize, Handles.CubeHandleCap))
                 {
                     s_SelectedPoint = 0;
-                    s_SelectedID = navLink.GetInstanceID(); s_SelectedID = navLink.GetInstanceID();
+                    s_SelectedLink = navLink;
                 }
             }
 
-            if (navLink.GetInstanceID() == s_SelectedID && s_SelectedPoint == 1)
-            {
+                if (s_SelectedLink == navLink && s_SelectedPoint == 1)            {
                 EditorGUI.BeginChangeCheck();
                 Handles.CubeHandleCap(0, endPt, zup, 0.1f * startSize, Event.current.type);
                 pos = Handles.PositionHandle(endPt, navLink.transform.rotation);
